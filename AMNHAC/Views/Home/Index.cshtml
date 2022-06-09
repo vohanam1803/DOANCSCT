@@ -19,6 +19,7 @@
                 </h1>
             </div>
         </header>
+
     </section>
 
 
@@ -45,7 +46,7 @@
                             <a class="lcourxo l1kpohop">
                                 <div class="lydohjg">
                                     <picture class="f8d0pxd sbgigcn p18r570z" height="45" style="--p18r570z-0:45px;--p18r570z-1:80px">
-                                        <img src="https://img.youtube.com/vi/@video.id/maxresdefault.jpg" alt="@video.title" class="i1by9jdf iwzmvkf" style="--iwzmvkf-0:transparent;--iwzmvkf-1:0;--i1by9jdf-0:#FFFFFF">
+                                        <img src="https://img.youtube.com/vi/@video.HinhNguonVideo/maxresdefault.jpg" alt="@video.title" class="i1by9jdf iwzmvkf" style="--iwzmvkf-0:transparent;--iwzmvkf-1:0;--i1by9jdf-0:#FFFFFF">
                                     </picture><span class="tge85oa e1lai98">@video.title</span><span class="s5fxhr2 e1lai98">
                                         @video.author / @video.Theloai.nameTheloai
                                     </span>
@@ -53,10 +54,19 @@
                             </a>
                         </div>
 
+
+
                         <form action="/Home/AddPlaylist" method="post">
-                            <input type="text" id="domainCheckId" name="CheckId" value="@video.id" style="display:none;" />
-                            <button type="submit" style="color:black;">Add Your Playlist</button>
+                            @using Microsoft.AspNet.Identity
+                            @if (Request.IsAuthenticated)
+                            {
+                                <input type="text" id="domain" name="Id" value="@video.title" style="display:none;" />
+                                <input type="text" id="domainCheckId" name="CheckId" value="@video.HinhNguonVideo/user/@User.Identity.GetUserName()" style="display:none;" />
+                                <input type="text" id="GetUserName" name="GetUserName" value="@User.Identity.GetUserName()" style="display:none;" />
+                                <button type="submit" style="color:black;">Add Your Playlist</button>
+                            }
                         </form>
+
 
                         <div class="modal js-modal" onclick="closeVideo(event)" id="@video.id">
                             <div class="modal-container js-modal-container">
@@ -76,7 +86,7 @@
                                     <div class="Lyrics">
                                         <p class="Lyrics-info">
 
-                                            <iframe id="@video.vitrivideo" width="560" height="315" src="https://www.youtube.com/embed/@video.id?" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            <iframe id="@video.vitrivideo" width="560" height="315" src="https://www.youtube.com/embed/@video.HinhNguonVideo?" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                             <div style="color:black;">
                                                 @video.link
                                             </div>
@@ -122,7 +132,7 @@
                             <a class="lcourxo l1kpohop">
                                 <div class="lydohjg">
                                     <picture class="f8d0pxd sbgigcn p18r570z" height="45" style="--p18r570z-0:45px;--p18r570z-1:80px">
-                                        <img src="https://img.youtube.com/vi/@video.id/maxresdefault.jpg" alt="@video.title" class="i1by9jdf iwzmvkf" style="--iwzmvkf-0:transparent;--iwzmvkf-1:0;--i1by9jdf-0:#FFFFFF">
+                                        <img src="https://img.youtube.com/vi/@video.HinhNguonVideo/maxresdefault.jpg" alt="@video.title" class="i1by9jdf iwzmvkf" style="--iwzmvkf-0:transparent;--iwzmvkf-1:0;--i1by9jdf-0:#FFFFFF">
                                     </picture><span class="tge85oa e1lai98">@video.title</span><span class="s5fxhr2 e1lai98">
                                         @video.author / @video.Theloai.nameTheloai
                                     </span>
@@ -131,8 +141,13 @@
                         </div>
 
                         <form action="/Home/AddPlaylist" method="post">
-                            <input type="text" id="domainCheckId" name="CheckId" value="@video.id" style="display:none;" />
-                            <button type="submit" style="color:black;">Add Your Playlist</button>
+                            @using Microsoft.AspNet.Identity
+                            @if (Request.IsAuthenticated)
+                            {
+                                <input type="text" id="domainCheckId" name="CheckId" value="@video.HinhNguonVideo/user/@User.Identity.GetUserName()" style="display:none;" />
+                                <input type="text" id="GetUserName" name="GetUserName" value="@User.Identity.GetUserName()" style="display:none;" />
+                                <button type="submit" style="color:black;">Add Your Playlist</button>
+                            }
                         </form>
 
                         <div class="modal js-modal" onclick="closeVideo(event)" id="@video.id">
@@ -153,7 +168,7 @@
                                     <div class="Lyrics">
                                         <p class="Lyrics-info">
 
-                                            <iframe id="@video.vitrivideo" width="560" height="315" src="https://www.youtube.com/embed/@video.id?" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            <iframe id="@video.vitrivideo" width="560" height="315" src="https://www.youtube.com/embed/@video.HinhNguonVideo?" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                             <div style="color:black;">
                                                 @video.link
                                             </div>

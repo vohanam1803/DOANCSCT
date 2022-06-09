@@ -34,8 +34,9 @@ namespace AMNHAC.Controllers
         // GET: MyMusicProfile
         public ActionResult Index()
         {
+            var userId = User.Identity.GetUserId();
             var videoProfile = data.Videos.ToList();
-            var check = from ss in data.Videos where ss.loaivideo == "user" select ss;
+            var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
 
             if (videoProfile.Count == 0)
             {

@@ -16,6 +16,7 @@ using Google.Apis.Http;
 using Google.Apis.Services;
 
 using Google.Apis.YouTube.v3;
+using Microsoft.AspNet.Identity;
 
 
 //
@@ -36,26 +37,26 @@ namespace AMNHAC.Controllers
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer()
             {
-                ApiKey = "AIzaSyA044O5L7G9VVMeAIxytPrqOMoUaa6v6_o",
+                ApiKey = "AIzaSyBHCjF4D7gZXz7vjh6XMKJpfNLmSGgZvV8",
                 ApplicationName = this.GetType().ToString()
-                
+
             });
 
             var searchListRequest = youtubeService.Search.List("snippet");
             searchListRequest.Q = timkiem; // Replace with your search term.
             searchListRequest.MaxResults = 6;
 
-           
+
             // Call the search.list method to retrieve results matching the specified query term.
             var searchListResponse = await searchListRequest.ExecuteAsync();
-            
+
 
             List<string> videos = new List<string>();
             List<string> channels = new List<string>();
             List<string> playlists = new List<string>();
 
 
-            
+
             // Add each result to the appropriate list, and then display the lists of
             // matching videos, channels, and playlists.
 
@@ -68,24 +69,25 @@ namespace AMNHAC.Controllers
                         var VideoListRequest = youtubeService.Videos.List("snippet, contentDetails, statistics");
                         VideoListRequest.Id = searchResult.Id.VideoId;
                         var VideoListResponse = await VideoListRequest.ExecuteAsync();
-                       
-                        
+
+
                         videos.Add(String.Format("{0} ({1})", searchResult.Snippet.Title, searchResult.Id.VideoId));
                         var vs = new Video();
                         {
                             vs.title = searchResult.Snippet.Title;
                             vs.id = searchResult.Id.VideoId;
+                            vs.HinhNguonVideo = searchResult.Id.VideoId;
                             vs.link = searchResult.Snippet.Description;
                             vs.author = searchResult.Snippet.ChannelTitle;
                             foreach (var video in VideoListResponse.Items)
                             {
                                 vs.duration = video.ContentDetails.Duration;
-                                
+
                             }
                         }
 
                         vk.Add(vs);
-                       
+
                         break;
 
                     case "youtube#channel":
@@ -98,7 +100,7 @@ namespace AMNHAC.Controllers
                 }
             }
 
-            
+
             Console.WriteLine(String.Format("Videos:\n{0}\n", string.Join("\n", videos)));
             Console.WriteLine(String.Format("Channels:\n{0}\n", string.Join("\n", channels)));
             Console.WriteLine(String.Format("Playlists:\n{0}\n", string.Join("\n", playlists)));
@@ -107,7 +109,7 @@ namespace AMNHAC.Controllers
         }
         /////////////////
 
-       
+
     }
 
 
@@ -116,6 +118,7 @@ namespace AMNHAC.Controllers
         DataClasses1DataContext data = new DataClasses1DataContext();
         SearchYouTube searchObject = new SearchYouTube();
         List<Video> test = new List<Video>();
+
 
 
 
@@ -153,7 +156,42 @@ namespace AMNHAC.Controllers
         [HttpPost]
         public async Task<ActionResult> Create(FormCollection form)
         {
+            var vk = new Video();
+            vk.title = form["Id"];
 
+            //Youtube API
+            test = await searchObject.RunYouTube(vk.title);
+
+            if (vk.title != "")
+            {
+                if (test.Count == 0)
+                {
+                    ViewBag.Message = "Can't find!!!!!";
+                    return View(test);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Search Results!!";
+                    return View(test);
+                }
+
+            }
+            else
+            {
+                dynamic mymodel = new ExpandoObject();
+                mymodel.person = GetPerson();
+
+
+                mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
+
+                mymodel.videoVN = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 2 select ss;
+                return View("~/Views/Home/Index.cshtml", mymodel);
+            }
+
+        }
+        [HttpPost]
+        public async Task<ActionResult> CreateAdmin(FormCollection form)
+        {
             var vk = new Video();
             vk.title = form["Id"];
             //Youtube API
@@ -176,7 +214,7 @@ namespace AMNHAC.Controllers
             else
             {
 
-                return View("~/Views/Home/Index.cshtml");
+                return View("~/Views/Home/TrangChu.cshtml");
             }
 
         }
@@ -193,17 +231,23 @@ namespace AMNHAC.Controllers
 
             return View();
         }
-
+        [HttpPost]
         public async Task<ActionResult> Test(FormCollection form)
         {
+
             List<Video> vs = new List<Video>();
             var vk = new Video();
             //Get tên bài hát muốn thêm vào
             vk.title = form["Id"];
+            //Get UserName
+            string getUser = form["GetUserName"];
+            var getDataUser = data.AspNetUsers.ToList();
+
 
             //Get id bài hát kiểm tra có bị trùng trong data ko
             vk.id = form["CheckId"];
             var checkId = data.Videos.Where(m => m.id == vk.id).FirstOrDefault();
+
 
             //Youtube API
             test = await searchObject.RunYouTube(vk.title);
@@ -212,14 +256,30 @@ namespace AMNHAC.Controllers
             for (var item = 0; item < test.Count; item++)
             {
                 vs[item].title = test[item].title;
-                vs[item].id = test[item].id;
+                vs[item].HinhNguonVideo = test[item].id;
                 vs[item].author = test[item].author;
                 vs[item].link = test[item].link;
+
+
                 vs[item].loaivideo = "user";
+                vs[item].id = test[item].id + "/user/" + getUser;
+
+
+
                 vs[item].duration = test[item].duration;
+
+                for (var itemuser = 0; itemuser < getDataUser.Count; itemuser++)
+                {
+                    if (getDataUser[itemuser].Email == getUser)
+                    {
+                        vs[item].UserId = getDataUser[itemuser].Id;
+                    }
+                }
+
+
                 if (checkId == default)
                 {
-                    if (vk.title == vs[item].title)
+                    if (vk.id == vs[item].id)
                     {
                         data.Videos.InsertOnSubmit(vs[item]);
                     }
@@ -232,8 +292,9 @@ namespace AMNHAC.Controllers
             }
             data.SubmitChanges();
             //Sổ danh sách 
+            var userId = User.Identity.GetUserId();
             var all_list = data.Videos.ToList();
-            var all_check = from ss in data.Videos where ss.loaivideo == "user" select ss;
+            var all_check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
             if (all_list.Count == 0)
             {
                 ViewBag.Message = "You Not Have Anything In Playlist";
@@ -249,17 +310,20 @@ namespace AMNHAC.Controllers
         [HttpGet]
         public ActionResult DetelePlaylist()
         {
-            var AfterD = data.Videos.ToList();
+            var userId = User.Identity.GetUserId();
+            var AfterD = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
             return View("~/Views/MyMusicProfile/Index.cshtml", AfterD);
         }
         [HttpPost]
         public ActionResult DetelePlaylist(string id, FormCollection collection)
         {
+            var userId = User.Identity.GetUserId();
             var D_playlist = data.Videos.Where(m => m.id == id).First();
             data.Videos.DeleteOnSubmit(D_playlist);
             data.SubmitChanges();
-            var AfterD = data.Videos.ToList();
-            if (AfterD.Count == 0)
+            var Data = data.Videos.ToList();
+            var AfterD = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+            if (Data.Count == 0)
             {
                 ViewBag.Message = "You Not Have Anything In Playlist";
                 return View("~/Views/MyMusicProfile/Index.cshtml", AfterD);
@@ -270,30 +334,49 @@ namespace AMNHAC.Controllers
                 return View("~/Views/MyMusicProfile/Index.cshtml", AfterD);
             }
         }
-        /*[HttpPost]
-        public ActionResult AddPlaylist(FormCollection form)
+        //
+        [HttpPost]
+        public async Task<ActionResult> AddPlaylist(FormCollection form)
         {
             List<Video> vs = new List<Video>();
             var vk = new Video();
-
-
+            //Get tên bài hát muốn thêm vào
+            vk.title = form["Id"];
+            //Get UserName
+            string getUser = form["GetUserName"];
+            var getDataUser = data.AspNetUsers.ToList();
             //Get id bài hát kiểm tra có bị trùng trong data ko
             vk.id = form["CheckId"];
             var checkId = data.Videos.Where(m => m.id == vk.id).FirstOrDefault();
 
-            test = data.Videos.ToList();
+            test = await searchObject.RunYouTube(vk.title);
             vs = new List<Video>(test);
 
 
             for (var item = 0; item < test.Count; item++)
             {
-
                 vs[item].title = test[item].title;
-                vs[item].id = test[item].id;
+                vs[item].HinhNguonVideo = test[item].id;
                 vs[item].author = test[item].author;
                 vs[item].link = test[item].link;
-                vs[item].loaivideo = test[item].loaivideo;
+
+
+                vs[item].loaivideo = "user";
+                vs[item].id = test[item].id + "/user/" + getUser;
+
+
+
                 vs[item].duration = test[item].duration;
+
+                for (var itemuser = 0; itemuser < getDataUser.Count; itemuser++)
+                {
+                    if (getDataUser[itemuser].Email == getUser)
+                    {
+                        vs[item].UserId = getDataUser[itemuser].Id;
+                    }
+                }
+
+
                 if (checkId == default)
                 {
                     if (vk.id == vs[item].id)
@@ -303,20 +386,30 @@ namespace AMNHAC.Controllers
                 }
                 else
                 {
-                    ViewBag.Check = "This Have In Your PlayList !!";
-                    return View("~/Views/Home/Create.cshtml", test);
+                    var IfofUser = User.Identity.GetUserId();
+                    var datauser = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == IfofUser select ss;
+                    ViewBag.Message = "This Have In Your PlayList !!";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", datauser);
                 }
-
             }
             data.SubmitChanges();
             //Sổ danh sách 
-            var all_list = data.Videos.ToList();
-            ViewBag.Message = "Your Playlist Have Been Update";
-            return View("~/Views/MyMusicProfile/Index.cshtml", all_list);
+            var userId = User.Identity.GetUserId();
 
-        }*/
+            var all_check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
 
 
+            ViewBag.Message = "Your Playlist";
+            return View("~/Views/MyMusicProfile/Index.cshtml", all_check);
+
+        }
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public ActionResult TrangAdmin()
         {
 
@@ -350,6 +443,10 @@ namespace AMNHAC.Controllers
             var vk = new Video();
             //Get tên bài hát muốn thêm vào
             vk.title = form["Id"];
+            //Get UserName
+            string getUser = form["GetUserName"];
+            var getDataUser = data.AspNetUsers.ToList();
+
 
             //Get id bài hát kiểm tra có bị trùng trong data ko
             vk.id = form["CheckId"];
@@ -365,19 +462,29 @@ namespace AMNHAC.Controllers
 
             if (check.nameTheloai == "")
             {
+
                 ViewBag.Message = "Check Your Opton!!";
-                return View("~/Views/Home/Create.cshtml", test);
+                return View("~/Views/Home/CreateAdmin.cshtml", test);
             }
 
             for (var item = 0; item < test.Count; item++)
             {
-                vs[item].id = test[item].id;
+
                 vs[item].title = test[item].title;
+                vs[item].HinhNguonVideo = test[item].id;
                 vs[item].author = test[item].author;
                 vs[item].link = test[item].link;
                 vs[item].vitrivideo = vs[item].id + a;
+                vs[item].id = test[item].id + "/admin/" + getUser;
                 vs[item].loaivideo = "admin" + vs[item].id;
                 vs[item].duration = test[item].duration;
+                for (var itemuser = 0; itemuser < getDataUser.Count; itemuser++)
+                {
+                    if (getDataUser[itemuser].Email == getUser)
+                    {
+                        vs[item].UserId = getDataUser[itemuser].Id;
+                    }
+                }
                 if (check.nameTheloai == "hoa")
                 {
                     vs[item].idTheloai = check.idTheloai = 1;
@@ -396,7 +503,7 @@ namespace AMNHAC.Controllers
                 a++;
                 if (checkId == default)
                 {
-                    if (vk.title == vs[item].title)
+                    if (vk.id == vs[item].id)
                     {
                         data.Videos.InsertOnSubmit(vs[item]);
                     }

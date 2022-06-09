@@ -382,6 +382,7 @@
     <Content Include="Views\Discover\VideoPlay.cshtml" />
     <Content Include="Views\Home\TrangAdmin.cshtml" />
     <Content Include="Views\Home\TrangChu.cshtml" />
+    <Content Include="Views\Home\CreateAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

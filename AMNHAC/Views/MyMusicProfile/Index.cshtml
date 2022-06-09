@@ -3,6 +3,7 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <link href="~/Content/css/content.css" rel="stylesheet" />
 <div class="information">
     <div class="profile">
@@ -53,13 +54,13 @@
 {
 
     <div class="song">
-        <div class="thumb" style="background-image: url('https://img.youtube.com/vi/@item.id/maxresdefault.jpg') "></div>
+        <div class="thumb" style="background-image: url('https://img.youtube.com/vi/@item.HinhNguonVideo/maxresdefault.jpg') "></div>
 
 
 
         <div class="body">
 
-            <iframe id="@item.id" width="560" height="315" src="https://www.youtube.com/embed/@item.id?controls=0" style="display:none;" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="@item.id" width="560" height="315" src="https://www.youtube.com/embed/@item.HinhNguonVideo?controls=0" style="display:none;" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             <h3 class="title"> @item.title</h3>
             <p class="author"> @item.author </p>
 
