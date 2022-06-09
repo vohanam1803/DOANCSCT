@@ -1,0 +1,418 @@
+﻿@model IEnumerable<AMNHAC.Models.Video>
+@{
+    ViewBag.Title = "IndexDiscover";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="place-body">
+    <button class="btn js-buy-ticket s-full-width">Playlist</button>
+
+    <div class="khung">
+
+
+        <div class="itxe">
+            <div class="music" style="max-width: 500px;margin: 0 auto;border-radius: 12px;background-color: white;box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;padding: 35px 15px 30px;">
+                <div class="music-thumb">
+                    <img src="https://source.unsplash.com/random" alt="" />
+                </div>
+
+                <div class="nameMusic" style="color: black; text-align: center; margin-bottom: 20px;"></div>
+                <div class="widthrange" style="padding-left: 100px;">
+                    <input type="range" name="range" id="range" class="range" />
+                </div>
+
+                <audio id="Song">
+                    <source type="" />
+                </audio>
+                <div class="timer">
+
+                    <div class="remaining"></div>
+                    <div class="duration"></div>
+
+                </div>
+                <div class="controls">
+
+                    <ion-icon name="shuffle-outline" class="play-shuffle"></ion-icon>
+
+                    <ion-icon name="play-back" class="play-back"></ion-icon>
+
+                    <div class="play">
+                        <div class="player-inner">
+                            <ion-icon name="play" class="play-icon" id="icon"></ion-icon>
+                        </div>
+                    </div>
+
+                    <ion-icon name="play-forward" class="play-forward"></ion-icon>
+
+                    <ion-icon name="repeat-outline" class="play-repeat"></ion-icon>
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="modal js-modal">
+            <div class="modal-container js-modal-container">
+                <div class="modal-close js-modal-close">
+                    <i class="fa fa-times"></i>
+                </div>
+
+                <header class="modal-header">
+                    <div class="Lyrics-form ">
+                        <i class="modal-heading-icon fa fa-info"></i>
+                        <h1 class="Lyrics-title">Playlist</h1>
+                    </div>
+
+                </header>
+
+                <div class="modal-body">
+
+
+                    <div class="Lyrics">
+                        <p class="Lyrics-info">
+                            <div class="editplaylist" style="padding-left: 15%; padding-right: 15%;">
+                                <p>Playlist</p>
+                                <div class="playlist">
+
+                                    @*Render*@
+
+
+                                </div>
+                            </div>
+                            ____________________
+                        </p>
+
+                    </div>
+                </div>
+
+                <footer class="modal-footer">
+                    <p class="modal-help text-black">Need <a href="">help?</a></p>
+                </footer>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*Load Song*@
+<script type="text/javascript">
+    function openList(e) {
+        var id = e.currentTarget.getAttribute('data-id')
+        console.log(id)
+    }
+
+
+
+    var mySong = document.getElementById("Song");
+    var icon = document.querySelector(".player-inner");
+    var next = document.querySelector(".play-forward");
+    var back = document.querySelector(".play-back");
+
+    var durationTime = document.querySelector(".duration");
+    var remainingTime = document.querySelector(".remaining");
+
+    var rangeBar = document.querySelector(".range");
+
+    var nameMusic = document.querySelector(".nameMusic");
+    var imageMusic = document.querySelector(".music-thumb img");
+    var spinnerImage = document.querySelector(".music-thumb");
+
+    var ran = document.querySelector(".play-shuffle");
+
+
+    var agian = document.querySelector(".play-repeat");
+
+    let repeat = false;
+
+    let Random = false;
+
+    let timer;
+
+    let isPlaying = true;
+
+
+
+    var music = [
+        {
+
+            id: 1,
+            title: "Luôn có người, sẽ yêu anh - 总有人，会爱你",
+            singer: "Mã Tu - 马修",
+            file: "314486061.mp3",
+            image: "https://img.youtube.com/vi/DkEOyRx2cdw/maxresdefault.jpg"
+
+        },
+        {
+            id: 2,
+            title: "枯鱼之肆",
+            singer: "阿YueYue",
+            file: "Ayueyue.mp3",
+            image: "https://img.youtube.com/vi/nz1LXVRHN9M/maxresdefault.jpg"
+
+        },
+        {
+            id: 3,
+            title: "Thu Thương Biệt Luyến -  秋殇别恋",
+            singer: "Mã Dược Triển - 马跃展",
+            file: "3136278587.mp3",
+            image: "https://img.youtube.com/vi/84vt6fqXtnI/maxresdefault.jpg"
+
+        },
+        {
+            id: 4,
+            title: "Gió Lay Nhành Đào -  风过谢桃花",
+            singer: "Tư Nam/ Tịch Âm Xã - 司南/汐音社",
+
+            file: "1933377945.mp3",
+            image: "https://img.youtube.com/vi/O_5VqxldvzQ/maxresdefault.jpg"
+
+        },
+        {
+            id: 5,
+            title: "HoLo",
+            singer: "",
+            file: "holo.mp3",
+            image: "https://img.youtube.com/vi/Iv5P21D76bw/maxresdefault.jpg"
+
+        },
+        {
+            id: 6,
+            title: "如愿",
+            singer: "Riri就是瑞瑞",
+            file: "如愿 - Riri就是瑞瑞(Cover-王菲).mp3",
+            image: "https://img.youtube.com/vi/3Lz_PBIWDRA/maxresdefault.jpg"
+
+        }
+
+    ]
+
+
+
+    //Map html playlist
+    const htmls = this.music.map((song, indexSong) => {
+        return `
+
+                        <div class="song" data-index="${indexSong}">
+                            <div class="thumb" style="background-image: url('${song.image}') "></div>
+                            <div class="body">
+                                <h3 class="title"> ${song.title} </h3>
+                                <p class="author"> ${song.singer} </p>
+                            </div>
+                            <div class="option">
+                                <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+                            </div>
+                        </div>
+
+                `}
+    )
+
+
+    const playlist = document.querySelector(".playlist");
+    playlist.innerHTML = htmls.join('')
+    playlist.addEventListener("click", scrollClick);
+    function scrollClick(e) {
+        const songNode = e.target.closest('.song');
+        if (songNode || e.target.closest('.option')) {
+            indexSong = Number(songNode.getAttribute('data-index'))
+            init(indexSong)
+            quay.play()  // dùng animation quay hinh
+            mySong.play();
+            icon.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
+            isPlaying = false;
+            timer = setInterval(displayTimer, 500);
+
+        }
+    }
+
+
+
+
+    let indexSong = 0;
+
+
+
+    //Quay hinh
+    const quay = spinnerImage.animate([
+        { transform: 'rotate(360deg)' }
+    ], {
+        duration: 10000,
+        iterations: Infinity
+    })
+    quay.pause()
+
+
+    icon.addEventListener("click", playPause);
+    function playPause() {
+        if (isPlaying) {
+            quay.play()  // dùng animation quay hinh
+            mySong.play();
+            icon.innerHTML = `<ion-icon name="pause-circle"></ion-icon>`;
+            isPlaying = false;
+            timer = setInterval(displayTimer, 500);
+        }
+        else {
+            quay.pause()  // dùng animation quay hinh
+            mySong.pause();
+            icon.innerHTML = `<ion-icon name="play"></ion-icon>`;
+            isPlaying = true;
+            clearInterval(timer);
+        }
+    }
+
+
+    //Thay đổi song
+    next.addEventListener("click", function () {
+        changeSong(1);
+    });
+    back.addEventListener("click", function () {
+        changeSong(-1);
+    });
+    function changeSong(dir) {
+        if (dir === 1) {
+            indexSong++;
+
+            if (indexSong >= music.length) {
+                indexSong = 0;
+            }
+            isPlaying = true;
+        } else if (dir === -1) {
+            indexSong--;
+
+            if (indexSong < 0) {
+                indexSong = music.length - 1;
+            }
+            isPlaying = true;
+        }
+
+        init(indexSong);
+
+        playPause();
+    }
+
+
+    //Time bài hát
+    function displayTimer() {
+        console.log(mySong.duration, mySong.currentTime);
+        var { duration, currentTime } = mySong;
+        rangeBar.max = duration;
+        rangeBar.value = currentTime;
+        remainingTime.textContent = time(currentTime);
+        if (!duration) {
+            durationTime.textContent = "00:00";
+        }
+        else {
+            durationTime.textContent = time(duration);
+        }
+    }
+    function time(number) {
+        var phut = Math.floor(number / 60);
+        var giay = Math.floor(number - phut * 60);
+        return `${phut < 10 ? '0' + phut : phut}:${giay < 10 ? '0' + giay : giay}`;
+    }
+
+
+    //Click thanh nhạc
+    rangeBar.addEventListener("change", changeBar);
+    function changeBar() {
+        mySong.currentTime = rangeBar.value;
+    }
+
+
+
+    agian.addEventListener("click", function () {
+        if (repeat) {
+            repeat = false;
+            agian.classList.remove("is-repeat");// dùng animation
+        }
+        else {
+
+            repeat = true;
+            agian.classList.add("is-repeat");  // dùng animation
+            ran.classList.remove("is-shuffle");// dùng animation
+        }
+    });
+    ran.addEventListener("click", function () {
+        if (Random) {
+            Random = false;
+            ran.classList.remove("is-shuffle");// dùng animation
+        }
+        else {
+
+            Random = true;
+            ran.classList.add("is-shuffle");  // dùng animation
+            agian.classList.remove("is-repeat");// dùng animation
+            repeat = false;
+        }
+    });
+    //Sinh ngẫu nhiên
+    function ranindex() {
+        return Math.floor(Math.random() * this.music.length);
+    }
+    //Chuyển bài khi kết thúc song
+    mySong.addEventListener("ended", endsong)
+    function endsong() {
+        if (repeat) {
+            isPlaying = true;
+            playPause();
+        }
+        else {
+            if (Random == true) {
+                do {
+                    init(ranindex());
+                } while (ranindex() === indexSong)
+
+                indexSong = ranindex()
+                isPlaying = true;
+                playPause();
+            }
+            else {
+                changeSong(1);
+            }
+
+
+
+        }
+    }
+
+
+
+
+    //Khởi tạo
+    function init(indexSong) {
+        displayTimer();
+        mySong.setAttribute("src", `/Content/music/${music[indexSong].file}`);
+        imageMusic.setAttribute("src", music[indexSong].image);
+        nameMusic.textContent = music[indexSong].title;
+
+    }
+    init(indexSong);
+</script>
+
+
+<script>
+    const buyBtns = document.querySelectorAll('.js-buy-ticket')
+    const modal = document.querySelector('.js-modal')
+    const modalContainer = document.querySelector('.js-modal-container')
+    const modalClose = document.querySelector('.modal-close')
+
+    function showBuyTickets() {
+        modal.classList.add('open')
+    }
+
+    function hideBuyTickets() {
+        modal.classList.remove('open')
+    }
+
+    for (const buyBtn of buyBtns) {
+        buyBtn.addEventListener('click', showBuyTickets)
+    }
+
+    modalClose.addEventListener('click', hideBuyTickets)
+    modal.addEventListener('click', hideBuyTickets)
+    modalContainer.addEventListener('click', function (event) {
+        event.stopPropagation()
+    })
+</script>
