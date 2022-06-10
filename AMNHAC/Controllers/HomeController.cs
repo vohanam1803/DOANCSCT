@@ -405,18 +405,36 @@ namespace AMNHAC.Controllers
         }
 
 
+        public bool checkUserorAdmin()
+        {
+            var userId = User.Identity.GetUserId();
+            var getDataUser = data.AspNetUserLogins.ToList();
+            for(var item = 0;item<getDataUser.Count;item++)
+            {
+                if(getDataUser[item].UserId == userId)
+                {
+                    if(getDataUser[item].LoginProvider == "Facebook")
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
+        /// 
+        [Authorize(Users = "xincaiten2001@gmail.com")]
         public ActionResult TrangAdmin()
         {
-
+           
             return View();
         }
 
-
+        [Authorize(Users = "xincaiten2001@gmail.com")]
         public ActionResult TrangChu()
         {
 
@@ -434,7 +452,7 @@ namespace AMNHAC.Controllers
 
         }
 
-
+        
         [HttpPost]
         public async Task<ActionResult> AddPlaylistAdmin(FormCollection form)
         {

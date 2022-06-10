@@ -1,6 +1,7 @@
 ﻿@using AMNHAC.Models
 @model dynamic
 <link href="~/Content/css/ticket.css" rel="stylesheet" />
+<h3 class="title" style="text-align:center;color:red;"> @ViewBag.Message </h3>
 <body>
     @using Microsoft.AspNet.Identity
     <section class="dau1">
@@ -140,10 +141,12 @@
                             </a>
                         </div>
 
+                        
                         <form action="/Home/AddPlaylist" method="post">
                             @using Microsoft.AspNet.Identity
                             @if (Request.IsAuthenticated)
                             {
+                                <input type="text" id="domain" name="Id" value="@video.title" style="display:none;" />
                                 <input type="text" id="domainCheckId" name="CheckId" value="@video.HinhNguonVideo/user/@User.Identity.GetUserName()" style="display:none;" />
                                 <input type="text" id="GetUserName" name="GetUserName" value="@User.Identity.GetUserName()" style="display:none;" />
                                 <button type="submit" style="color:black;">Add Your Playlist</button>

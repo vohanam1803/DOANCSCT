@@ -3,6 +3,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -32,23 +33,27 @@ namespace AMNHAC.Controllers
         }
 
         // GET: MyMusicProfile
-        public ActionResult Index()
+        /*public ActionResult Index()
         {
             var userId = User.Identity.GetUserId();
+            var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
             var videoProfile = data.Videos.ToList();
             var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
-
+            dynamic mymodel = new ExpandoObject();
+            mymodel.user = checkuser;
+            mymodel.video = check;
             if (videoProfile.Count == 0)
             {
                 ViewBag.Message = "You Not Have Anything In Playlist";
-                return View(check);
+                return View(mymodel);
             }
             else
             {
                 ViewBag.Message = "Your Playlist";
-                return View(check);
+                return View(mymodel);
             }
-        }
+        }*/
         public ActionResult DetelePlaylist(string id)
         {
             var D_playlist = data.Videos.Where(m => m.id == id).First();
@@ -63,7 +68,7 @@ namespace AMNHAC.Controllers
             return RedirectToAction("Test");
         }
 
-        public async Task<ActionResult> Post()
+        public async Task<ActionResult> Index()
         {
             var currentClaims = await UserManager.GetClaimsAsync(HttpContext.User.Identity.GetUserId());
 
@@ -71,7 +76,25 @@ namespace AMNHAC.Controllers
 
             if (accesstoken == null)
             {
-                return (new HttpStatusCodeResult(HttpStatusCode.NotFound, "Token not found"));
+                var userId = User.Identity.GetUserId();
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.ToList();
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile.Count == 0)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View(mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View(mymodel);
+                }
+                 /*(new HttpStatusCodeResult(HttpStatusCode.NotFound, "Token not found"))*/;
             }
             string url = String.Format("https://graph.facebook.com/v14.0/me?fields=id,name,picture,email&access_token={0}", accesstoken.Value);
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
@@ -85,9 +108,42 @@ namespace AMNHAC.Controllers
                 string result = await reader.ReadToEndAsync();
 
                 dynamic jsonObj = System.Web.Helpers.Json.Decode(result);
+                Models.Facebook facebook = new Models.Facebook(jsonObj);
                 ViewBag.JSON = result;
+
+                var userId = User.Identity.GetUserId();
+
+                var getUserdata = data.AspNetUsers.ToList();
+                for(var item = 0;item<getUserdata.Count;item++)
+                {
+                    if(getUserdata[item].Id == userId)
+                    {
+                        getUserdata[item].UserName = facebook.name;
+                        getUserdata[item].Name = facebook.picture.data.url;
+                    }
+                }
+                ///
+                
+                var checkuser = from ss in getUserdata where ss.Id == userId  select ss; ;
+
+                var videoProfile = data.Videos.ToList();
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile.Count == 0)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View(mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View(mymodel);
+                }
+                
             }
-            return View();
+            
         }
     }
 }
