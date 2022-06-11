@@ -4,7 +4,10 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+@using Microsoft.AspNet.Identity
+<form action="/Home/Post" method="post">
+    <button type="submit" style="background-color:red;color:black;">Vô Quyền Admin</button>
+</form>
 <link href="~/Content/css/content.css" rel="stylesheet" />
 <div class="information">
     @foreach (AspNetUser user in Model.user)
@@ -43,7 +46,7 @@
 </div>
 
 
-<h3 class="title" style="text-align:center;"> @ViewBag.Message </h3>
+<h3 class="title" style="text-align:center;color:red;"> @ViewBag.Message </h3>
 
 <div class="controls">
 

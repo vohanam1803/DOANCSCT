@@ -54,7 +54,7 @@ namespace AMNHAC.Controllers
                 return View(mymodel);
             }
         }*/
-        public ActionResult DetelePlaylist(string id)
+        /*public ActionResult DetelePlaylist(string id)
         {
             var D_playlist = data.Videos.Where(m => m.id == id).First();
             return View();
@@ -66,7 +66,10 @@ namespace AMNHAC.Controllers
             data.Videos.DeleteOnSubmit(D_playlist);
             data.SubmitChanges();
             return RedirectToAction("Test");
-        }
+        }*/
+       
+        
+        
 
         public async Task<ActionResult> Index()
         {
@@ -79,12 +82,12 @@ namespace AMNHAC.Controllers
                 var userId = User.Identity.GetUserId();
                 var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
 
-                var videoProfile = data.Videos.ToList();
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
                 var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
                 dynamic mymodel = new ExpandoObject();
                 mymodel.user = checkuser;
                 mymodel.video = check;
-                if (videoProfile.Count == 0)
+                if (videoProfile == null)
                 {
                     ViewBag.Message = "You Not Have Anything In Playlist";
                     return View(mymodel);
@@ -122,16 +125,17 @@ namespace AMNHAC.Controllers
                         getUserdata[item].Name = facebook.picture.data.url;
                     }
                 }
+               
                 ///
-                
-                var checkuser = from ss in getUserdata where ss.Id == userId  select ss; ;
 
-                var videoProfile = data.Videos.ToList();
+                var checkuser = from ss in getUserdata where ss.Id == userId  select ss; 
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
                 var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
                 dynamic mymodel = new ExpandoObject();
                 mymodel.user = checkuser;
                 mymodel.video = check;
-                if (videoProfile.Count == 0)
+                if (videoProfile == null)
                 {
                     ViewBag.Message = "You Not Have Anything In Playlist";
                     return View(mymodel);
@@ -142,6 +146,37 @@ namespace AMNHAC.Controllers
                     return View(mymodel);
                 }
                 
+            }
+            
+        }
+        public bool checkUserorAdmin()
+        {
+            var userId = User.Identity.GetUserId();
+            var getDataUser = data.AspNetUserLogins.ToList();
+            for (var item = 0; item < getDataUser.Count; item++)
+            {
+                if (getDataUser[item].UserId == userId)
+                {
+                    if (getDataUser[item].LoginProvider == "Facebook")
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        [HttpPost]
+        public ActionResult Post()
+        {
+            if(checkUserorAdmin() == false)
+            {
+                ViewBag.Message = "Bạn Không Có Quyền Hạn Này cho tài khoản";
+                return View();
+            }
+            else
+            {
+                ViewBag.Message = "Xin Chào Admin";
+                return View("~/Views/Home/TrangAdmin.cshtml");
             }
             
         }

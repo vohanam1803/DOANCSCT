@@ -17,6 +17,7 @@ using Google.Apis.Services;
 
 using Google.Apis.YouTube.v3;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 
 
 //
@@ -120,7 +121,18 @@ namespace AMNHAC.Controllers
         List<Video> test = new List<Video>();
 
 
-
+        private ApplicationUserManager _userManager;
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            private set
+            {
+                _userManager = value;
+            }
+        }
 
         //
         private List<Person> GetPerson()
@@ -231,7 +243,7 @@ namespace AMNHAC.Controllers
 
             return View();
         }
-        [HttpPost]
+        /*[HttpPost]
         public async Task<ActionResult> Test(FormCollection form)
         {
 
@@ -305,35 +317,175 @@ namespace AMNHAC.Controllers
                 ViewBag.Message = "Your Playlist";
                 return View("~/Views/MyMusicProfile/Index.cshtml", all_check);
             }
-        }
+        }*/
 
         [HttpGet]
-        public ActionResult DetelePlaylist()
+        public async Task<ActionResult> DetelePlaylist()
         {
             var userId = User.Identity.GetUserId();
-            var AfterD = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
-            return View("~/Views/MyMusicProfile/Index.cshtml", AfterD);
+            var currentClaims = await UserManager.GetClaimsAsync(HttpContext.User.Identity.GetUserId());
+
+            var accesstoken = currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook");  //currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook")
+
+            if (accesstoken == null)
+            {
+                
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile == null)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                 /*(new HttpStatusCodeResult(HttpStatusCode.NotFound, "Token not found"))*/;
+            }
+            string url = String.Format("https://graph.facebook.com/v14.0/me?fields=id,name,picture,email&access_token={0}", accesstoken.Value);
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+
+            request.Method = "GET";
+
+            using (HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string result = await reader.ReadToEndAsync();
+
+                dynamic jsonObj = System.Web.Helpers.Json.Decode(result);
+                Models.Facebook facebook = new Models.Facebook(jsonObj);
+                ViewBag.JSON = result;
+
+               
+
+                var getUserdata = data.AspNetUsers.ToList();
+                for (var item = 0; item < getUserdata.Count; item++)
+                {
+                    if (getUserdata[item].Id == userId)
+                    {
+                        getUserdata[item].UserName = facebook.name;
+                        getUserdata[item].Name = facebook.picture.data.url;
+                    }
+                }
+
+                ///
+
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile == null)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+
+            }
         }
         [HttpPost]
-        public ActionResult DetelePlaylist(string id, FormCollection collection)
+        public async Task<ActionResult> DetelePlaylist(string id, FormCollection collection)
         {
             var userId = User.Identity.GetUserId();
             var D_playlist = data.Videos.Where(m => m.id == id).First();
             data.Videos.DeleteOnSubmit(D_playlist);
             data.SubmitChanges();
-            var Data = data.Videos.ToList();
-            var AfterD = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
-            if (Data.Count == 0)
+
+
+
+            var currentClaims = await UserManager.GetClaimsAsync(HttpContext.User.Identity.GetUserId());
+
+            var accesstoken = currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook");  //currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook")
+
+            if (accesstoken == null)
             {
-                ViewBag.Message = "You Not Have Anything In Playlist";
-                return View("~/Views/MyMusicProfile/Index.cshtml", AfterD);
+                
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile == null)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                 /*(new HttpStatusCodeResult(HttpStatusCode.NotFound, "Token not found"))*/;
             }
-            else
+            string url = String.Format("https://graph.facebook.com/v14.0/me?fields=id,name,picture,email&access_token={0}", accesstoken.Value);
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+
+            request.Method = "GET";
+
+            using (HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse)
             {
-                ViewBag.Message = "Your Playlist";
-                return View("~/Views/MyMusicProfile/Index.cshtml", AfterD);
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string result = await reader.ReadToEndAsync();
+
+                dynamic jsonObj = System.Web.Helpers.Json.Decode(result);
+                Models.Facebook facebook = new Models.Facebook(jsonObj);
+                ViewBag.JSON = result;
+
+                
+
+                var getUserdata = data.AspNetUsers.ToList();
+                for (var item = 0; item < getUserdata.Count; item++)
+                {
+                    if (getUserdata[item].Id == userId)
+                    {
+                        getUserdata[item].UserName = facebook.name;
+                        getUserdata[item].Name = facebook.picture.data.url;
+                    }
+                }
+
+                ///
+
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile == null)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+
             }
+
         }
+        //
+
         //
         [HttpPost]
         public async Task<ActionResult> AddPlaylist(FormCollection form)
@@ -386,21 +538,150 @@ namespace AMNHAC.Controllers
                 }
                 else
                 {
-                    var IfofUser = User.Identity.GetUserId();
-                    var datauser = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == IfofUser select ss;
-                    ViewBag.Message = "This Have In Your PlayList !!";
-                    return View("~/Views/MyMusicProfile/Index.cshtml", datauser);
+                    var a = await UserManager.GetClaimsAsync(HttpContext.User.Identity.GetUserId());
+
+                    var b = a.FirstOrDefault(x => x.Type == "urn:tokens:facebook");  //currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook")
+
+                    if (b == null)
+                    {
+                        var userId = User.Identity.GetUserId();
+                        var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+
+                        var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                        dynamic mymodel = new ExpandoObject();
+                        mymodel.user = checkuser;
+                        mymodel.video = check;
+
+                        ViewBag.Message = "This Have In Your Playlist";
+                        return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+
+                    }
+                    string c = String.Format("https://graph.facebook.com/v14.0/me?fields=id,name,picture,email&access_token={0}", b.Value);
+                    HttpWebRequest d = WebRequest.Create(c) as HttpWebRequest;
+
+                    d.Method = "GET";
+
+                    using (HttpWebResponse response = await d.GetResponseAsync() as HttpWebResponse)
+                    {
+                        StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                        string result = await reader.ReadToEndAsync();
+
+                        dynamic jsonObj = System.Web.Helpers.Json.Decode(result);
+                        Models.Facebook facebook = new Models.Facebook(jsonObj);
+                        ViewBag.JSON = result;
+
+                        var userId = User.Identity.GetUserId();
+
+                        var getUserdata = data.AspNetUsers.ToList();
+                        for (var items = 0; items < getUserdata.Count; items++)
+                        {
+                            if (getUserdata[items].Id == userId)
+                            {
+                                getUserdata[items].UserName = facebook.name;
+                                getUserdata[items].Name = facebook.picture.data.url;
+                            }
+                        }
+                       
+                        ///
+
+                        var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+
+                        var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                        dynamic mymodel = new ExpandoObject();
+                        mymodel.user = checkuser;
+                        mymodel.video = check;
+
+                        ViewBag.Message = "This Have In Your Playlist!!";
+                        return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+
+
+                    }
                 }
             }
             data.SubmitChanges();
             //Sổ danh sách 
-            var userId = User.Identity.GetUserId();
+            /*var userId = User.Identity.GetUserId();
 
             var all_check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
-
-
             ViewBag.Message = "Your Playlist";
-            return View("~/Views/MyMusicProfile/Index.cshtml", all_check);
+            return View("~/Views/MyMusicProfile/Index.cshtml", all_check);*/
+            var currentClaims = await UserManager.GetClaimsAsync(HttpContext.User.Identity.GetUserId());
+
+            var accesstoken = currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook");  //currentClaims.FirstOrDefault(x => x.Type == "urn:tokens:facebook")
+
+            if (accesstoken == null)
+            {
+                var userId = User.Identity.GetUserId();
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile == null)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                 /*(new HttpStatusCodeResult(HttpStatusCode.NotFound, "Token not found"))*/;
+            }
+            string url = String.Format("https://graph.facebook.com/v14.0/me?fields=id,name,picture,email&access_token={0}", accesstoken.Value);
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+
+            request.Method = "GET";
+
+            using (HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse)
+            {
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+
+                string result = await reader.ReadToEndAsync();
+
+                dynamic jsonObj = System.Web.Helpers.Json.Decode(result);
+                Models.Facebook facebook = new Models.Facebook(jsonObj);
+                ViewBag.JSON = result;
+
+                var userId = User.Identity.GetUserId();
+
+                var getUserdata = data.AspNetUsers.ToList();
+                for (var item = 0; item < getUserdata.Count; item++)
+                {
+                    if (getUserdata[item].Id == userId)
+                    {
+                        getUserdata[item].UserName = facebook.name;
+                        getUserdata[item].Name = facebook.picture.data.url;
+                    }
+                }
+               
+                ///
+
+                var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
+
+                var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
+                var check = from ss in data.Videos where ss.loaivideo == "user" && ss.UserId == userId select ss;
+                dynamic mymodel = new ExpandoObject();
+                mymodel.user = checkuser;
+                mymodel.video = check;
+                if (videoProfile == null)
+                {
+                    ViewBag.Message = "You Not Have Anything In Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+                else
+                {
+                    ViewBag.Message = "Your Playlist";
+                    return View("~/Views/MyMusicProfile/Index.cshtml", mymodel);
+                }
+
+            }
 
         }
 
@@ -409,11 +690,11 @@ namespace AMNHAC.Controllers
         {
             var userId = User.Identity.GetUserId();
             var getDataUser = data.AspNetUserLogins.ToList();
-            for(var item = 0;item<getDataUser.Count;item++)
+            for (var item = 0; item < getDataUser.Count; item++)
             {
-                if(getDataUser[item].UserId == userId)
+                if (getDataUser[item].UserId == userId)
                 {
-                    if(getDataUser[item].LoginProvider == "Facebook")
+                    if (getDataUser[item].LoginProvider == "Facebook")
                     {
                         return true;
                     }
@@ -430,7 +711,7 @@ namespace AMNHAC.Controllers
         [Authorize(Users = "xincaiten2001@gmail.com")]
         public ActionResult TrangAdmin()
         {
-           
+
             return View();
         }
 
@@ -452,7 +733,7 @@ namespace AMNHAC.Controllers
 
         }
 
-        
+
         [HttpPost]
         public async Task<ActionResult> AddPlaylistAdmin(FormCollection form)
         {
@@ -691,7 +972,21 @@ namespace AMNHAC.Controllers
         }
 
 
+        [HttpPost]
+        public ActionResult Post()
+        {
+            if (checkUserorAdmin() == false)
+            {
+                ViewBag.Message = "Bạn Không Có Quyền Hạn Này cho tài khoản";
+                return View("~/Views/MyMusicProfile/Post.cshtml");
+            }
+            else
+            {
+                ViewBag.Message = "Xin Chào Admin";
+                return View("~/Views/Home/TrangAdmin.cshtml");
+            }
 
+        }
 
     }
 }
