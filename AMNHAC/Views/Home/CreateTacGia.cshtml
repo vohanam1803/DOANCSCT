@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "CreateTacGia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Tạo Tác Giả</h2>
+<form action="/Home/CreateTacGia" method="post">
+    <div style="color:black;">
+        <hr />
+        <dl class="dl-horizontal">
+
+
+
+            <dt style="color:white">
+                Tên Tác Giả
+            </dt>
+
+            <dd>
+                <input type="text" id="domain" name="name" />
+            </dd>
+
+            <dt style="color:white">
+                Mô Tả
+            </dt>
+
+            <dd>
+                <input type="text" id="domain" name="mota" />
+            </dd>
+
+            <dt style="color:white">
+                Hình Nhân Vật
+            </dt>
+
+            <dd>
+                <input type="file" name="fileUpload" id="fileUpload" style="color:white;display:none;" accept="image/*" />
+                <input type="button" id="btnUpload" value="Chọn" class="btn btn-success" />
+                <input type="text" id="hinh" name="hinh" value="" />
+                <img style="margin-top: 10px; width: 200px; height: 200px;" src="" id="pictureUpload" />
+                @*<img src="@item.hinhPerson" style="width:200px;height:200px;">*@
+            </dd>
+
+            <dt style="color:white">
+                Nguồn Gốc
+            </dt>
+
+            <dd>
+                <select name="nguongoc" class="form-control">
+                    <option value="">--Chọn Thể Loại--</option>
+                    <option value="hoa">Trung Hoa</option>
+                    <option value="viet">Việt Nam</option>
+                    @*<option value="khac">Nhạc Khác</option>*@
+                </select>
+                @*<input type="text" id="domain" name="nguongoc" value="@item.Theloai.nameTheloai" />*@
+            </dd>
+
+        </dl>
+    </div>
+
+
+    <button type="submit" style="color:black;">Save</button>
+</form>
+<p>
+
+    @Html.ActionLink("Back to List", "TacGia")
+</p>
+@section upload
+        {
+    <script>
+        $(function () {
+            $('#btnUpload').click(function () {
+                $('#fileUpload').trigger('click');
+            });
+        });
+        $('#fileUpload').change(function () {
+            if (window.FormData !== undefined) {
+                var fileUpload = $('#fileUpload').get(0);
+                var files = fileUpload.files;
+                var formData = new FormData();
+                formData.append('file', files[0]);
+
+                $.ajax(
+                    {
+                        type: 'POST',
+                        url: '/Home/ProcessUpload',
+                        contentType: false,
+                        processData: false,
+                        data: formData,
+                        success: function (urlImage) {
+
+                            $('#pictureUpload').attr('src', urlImage);
+                            $('#hinh').attr('value',urlImage);
+                        },
+                        error: function (err) {
+                            alert('Error ', err.statusText);
+                        }
+                    });
+            }
+        });
+    </script>
+}

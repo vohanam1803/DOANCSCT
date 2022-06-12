@@ -149,8 +149,8 @@ namespace AMNHAC.Controllers
         {
 
             dynamic mymodel = new ExpandoObject();
-            mymodel.person = GetPerson();
-
+            mymodel.personTQ = from ss in data.Persons where ss.idTheloai == 1 select ss;
+            mymodel.personVN = from ss in data.Persons where ss.idTheloai == 2 select ss;
 
             mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
 
@@ -329,7 +329,7 @@ namespace AMNHAC.Controllers
 
             if (accesstoken == null)
             {
-                
+
                 var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
 
                 var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
@@ -364,7 +364,7 @@ namespace AMNHAC.Controllers
                 Models.Facebook facebook = new Models.Facebook(jsonObj);
                 ViewBag.JSON = result;
 
-               
+
 
                 var getUserdata = data.AspNetUsers.ToList();
                 for (var item = 0; item < getUserdata.Count; item++)
@@ -414,7 +414,7 @@ namespace AMNHAC.Controllers
 
             if (accesstoken == null)
             {
-                
+
                 var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
 
                 var videoProfile = data.Videos.FirstOrDefault(m => m.UserId == userId);
@@ -449,7 +449,7 @@ namespace AMNHAC.Controllers
                 Models.Facebook facebook = new Models.Facebook(jsonObj);
                 ViewBag.JSON = result;
 
-                
+
 
                 var getUserdata = data.AspNetUsers.ToList();
                 for (var item = 0; item < getUserdata.Count; item++)
@@ -583,7 +583,7 @@ namespace AMNHAC.Controllers
                                 getUserdata[items].Name = facebook.picture.data.url;
                             }
                         }
-                       
+
                         ///
 
                         var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
@@ -660,7 +660,7 @@ namespace AMNHAC.Controllers
                         getUserdata[item].Name = facebook.picture.data.url;
                     }
                 }
-               
+
                 ///
 
                 var checkuser = from ss in data.AspNetUsers where ss.Id == userId select ss;
@@ -723,7 +723,8 @@ namespace AMNHAC.Controllers
             /*var trangchu = from ss in data.Videos where ss.loaivideo != "user" select ss;*/
             dynamic mymodel = new ExpandoObject();
             mymodel.person = GetPerson();
-
+            mymodel.personTQ = from ss in data.Persons where ss.idTheloai == 1 select ss;
+            mymodel.personVN = from ss in data.Persons where ss.idTheloai == 2 select ss;
             mymodel.trangchu = from ss in data.Videos where ss.loaivideo != "user" select ss;
             mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
 
@@ -988,5 +989,153 @@ namespace AMNHAC.Controllers
 
         }
 
+        [Authorize(Users = "xincaiten2001@gmail.com")]
+        [HttpGet]
+        public ActionResult TacGia()
+        {
+            dynamic mymodel = new ExpandoObject();
+            mymodel.personTQ = from ss in data.Persons where ss.idTheloai == 1 select ss;
+            mymodel.personVN = from ss in data.Persons where ss.idTheloai == 2 select ss;
+            mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
+
+            mymodel.videoVN = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 2 select ss;
+            return View(mymodel);
+
+        }
+
+        [Authorize]
+        [HttpGet]
+        public ActionResult CreateTacGia()
+        {
+
+            return View();
+        }
+        [HttpPost]
+        public ActionResult CreateTacGia(FormCollection fr,Person s)
+        {
+
+
+            var getname = fr["name"];
+            var getmota = fr["mota"];
+            var gethinh = fr["hinh"];
+            var getnguongoc = fr["nguongoc"];
+
+
+
+
+            dynamic mymodel = new ExpandoObject();
+            mymodel.personTQ = from ss in data.Persons where ss.idTheloai == 1 select ss;
+            mymodel.personVN = from ss in data.Persons where ss.idTheloai == 2 select ss;
+            mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
+
+            mymodel.videoVN = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 2 select ss;
+            var dataperson = data.Persons.ToList();
+            s.namePerson = getname;
+            s.Mota = getmota;
+            s.hinhPerson = gethinh;
+            if(getnguongoc == "hoa")
+            {
+                s.idTheloai = 1;
+            }
+            if (getnguongoc == "viet")
+            {
+                s.idTheloai = 2;
+            }
+            if (getnguongoc == "")
+            {
+                ViewBag.Message = "Check Your Option!!";
+                return View("~/Views/Home/TacGia.cshtml", mymodel);
+            }
+            data.Persons.InsertOnSubmit(s);
+            data.SubmitChanges();
+
+            return View("~/Views/Home/TacGia.cshtml", mymodel);
+        }
+        [HttpPost]
+        public ActionResult DetailsTacGia(int id)
+        {
+            var datatacgia = from ss in data.Persons where ss.idPerson == id select ss;
+            return View(datatacgia);
+
+        }
+
+        [HttpPost]
+        public ActionResult EditTacGia(FormCollection id)
+        {
+            var getid = Convert.ToInt32(id["Id"]);
+            var getuser = from ss in data.Persons where ss.idPerson == getid select ss;
+            return View(getuser);
+        }
+        [HttpPost]
+        public ActionResult EditTG(FormCollection fr)
+        {
+            var getid = Convert.ToInt32(fr["Id"]);
+            var getname = fr["name"];
+            var getmota = fr["mota"];
+            var gethinh = fr["hinh"];
+            var getnguongoc = fr["nguongoc"];
+
+            dynamic mymodel = new ExpandoObject();
+            mymodel.personTQ = from ss in data.Persons where ss.idTheloai == 1 select ss;
+            mymodel.personVN = from ss in data.Persons where ss.idTheloai == 2 select ss;
+            mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
+
+            mymodel.videoVN = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 2 select ss;
+            var dataperson = data.Persons.ToList();
+            for (var item = 0; item < dataperson.Count; item++)
+            {
+                if (dataperson[item].idPerson == getid)
+                {
+                    dataperson[item].namePerson = getname;
+                    dataperson[item].Mota = getmota;
+                    dataperson[item].hinhPerson = gethinh;
+                    if (getnguongoc == "hoa")
+                    {
+                        dataperson[item].idTheloai = 1;
+                    }
+                    if (getnguongoc == "viet")
+                    {
+                        dataperson[item].idTheloai = 2;
+                    }
+                    if (getnguongoc == "")
+                    {
+                        ViewBag.Message = "Check your option Nguồn Gốc!!";
+                        var getuser = from ss in data.Persons where ss.idPerson == getid select ss;
+                        return View("~/Views/Home/EditTacGia.cshtml", getuser);
+                    }
+                    UpdateModel(dataperson[item]);
+                }
+            }
+            data.SubmitChanges();
+            return View("~/Views/Home/TacGia.cshtml", mymodel);
+
+        }
+        [HttpPost]
+        public ActionResult DeleteTacGia(FormCollection id)
+        {
+            var getid = Convert.ToInt32(id["Id"]);
+            var D_playlist = data.Persons.Where(m => m.idPerson == getid).First();
+            data.Persons.DeleteOnSubmit(D_playlist);
+            data.SubmitChanges();
+
+            dynamic mymodel = new ExpandoObject();
+            mymodel.personTQ = from ss in data.Persons where ss.idTheloai == 1 select ss;
+            mymodel.personVN = from ss in data.Persons where ss.idTheloai == 2 select ss;
+            mymodel.videoTQ = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 1 select ss;
+
+            mymodel.videoVN = from ss in data.Videos where ss.loaivideo != "user" && ss.idTheloai == 2 select ss;
+
+            return View("~/Views/Home/TacGia.cshtml", mymodel);
+        }
+        [HttpPost]
+        public string ProcessUpload(HttpPostedFileBase file)
+        {
+            if (file == null)
+            {
+                return "";
+            }
+            file.SaveAs(Server.MapPath("~/Content/images/" + file.FileName));
+            return "/Content/images/" + file.FileName;
+        }
     }
 }

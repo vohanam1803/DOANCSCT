@@ -1,113 +1,136 @@
 ﻿@using AMNHAC.Models
 @model dynamic
 @{
-    ViewBag.Title = "TrangChu";
+    ViewBag.Title = "TacGia";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 style="color:orangered;text-align:center;">Home Trang Chủ</h2>
-<form action="/Home/CreateAdmin" method="post">
-    <span class="icon"><i class="fa fa-search"></i></span>
-    <input type="search" name="Id" id="search" placeholder="Search Any Song.." title="Tìm kiếm" style="color:#000" />
-</form>
+<h2 style="color:orangered;text-align:center;">Airtist (Tác Giả)</h2>
 <form action="/Home/TrangAdmin" method="get">
 
-    <input class="btn js-buy-ticket s-full-width" type="submit" title="Về Hệ Thống" value="Về Hệ Thống" style="color: red; background-color: azure; " />
+    <input class="btn js-buy-ticket s-full-width" type="submit" title="Về Hệ Thống" value="Về Hệ Thống" style="color:red;background-color:azure;" />
 </form>
-<form action="/Home/TrangChu" method="get">
-
-    <input type="submit" title="Về Play List" value="Về Playlist" style="color:#000" />
-</form>
-
 <button class="btn js-buy-ticket s-full-width" onclick="openList(event)" data-id="Show" style="background-color:red;">Show Trang Chủ</button>
+<p>
+    @Html.ActionLink("Create New", "CreateTacGia")
+</p>
 
-<h2>Tìm Kiếm Trong Playlist</h2>
-<form action="/Home/SearchInPlaylist" method="post">
-    <span class="icon"><i class="fa fa-search"></i></span>
-    <input type="search" name="SearchInPlaylist" id="search" placeholder="Search Any Song.." title="Tìm kiếm" style="color:#000" />
-</form>
+<h2>TRUNG QUỐC</h2>
+<table class="table">
+    <tr>
+        <th>
+            id Tác Giả
+        </th>
+        <th>
+            Tên Tác Giả
+        </th>
+        <th>
+            Mô Tả
+        </th>
+        <th>
+            Hình Nhân Vật
+        </th>
+        <th>
+            Nguồn Gốc
+        </th>
 
-<h3 class="title" style="text-align:center;color:red;"> @ViewBag.Message </h3>
-<div class="Artist">
-    <section class="Artist-Noidung">
-        <header class="Artist-Tieude">
-            <div class="NhacHoa"><a class="nyued0j lmgha8v" style="--lmgha8v-0:#009DC6">Playlist Nhạc </a></div>
-        </header>
-        <div class="Nhac-content">
+        <th></th>
+    </tr>
 
-            <div class="Nhac-Tieubieu">
-                @foreach (Video video in Model.trangchu)
-                {
-                    <div onclick="openList(event)" data-id="@video.id" style="--Nhac-0:#F8F8F8">
-                        <a class="lcourxo l1kpohop">
-                            <div class="lydohjg">
-                                <picture class="f8d0pxd sbgigcn p18r570z" height="45" style="--p18r570z-0:45px;--p18r570z-1:80px">
-                                    <img src="https://img.youtube.com/vi/@video.HinhNguonVideo/maxresdefault.jpg" alt="@video.title" class="i1by9jdf iwzmvkf" style="--iwzmvkf-0:transparent;--iwzmvkf-1:0;--i1by9jdf-0:#FFFFFF">
-                                </picture><span class="tge85oa e1lai98">@video.title</span><span class="s5fxhr2 e1lai98">
-                                    @video.author / Loại: @video.Theloai.nameTheloai
-                                </span>
-                            </div>
-                        </a>
-                    </div>
+    @foreach (Person item in Model.personTQ)
+    {
+        <tr>
+            <td>
+                @item.idPerson
+            </td>
+            <td>
+                @item.namePerson
+            </td>
+            <td>
+                @item.Mota
+            </td>
+            <td>
+                <img src="@item.hinhPerson" style="width:200px;height:200px;">
+            </td>
+            <td>
+                @item.Theloai.nameTheloai
+            </td>
+            <td>
+                <form action="/Home/EditTacGia" method="post">
+                    <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+                    <button type="submit" style="color:black;">EditInfo</button>
+                </form> |
+                <form action="/Home/DetailsTacGia" method="post">
+                    <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+                    <button type="submit" style="color:black;">ViewInfo</button>
+                </form> |
+                <form action="/Home/DeleteTacGia" method="post">
+                    <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+                    <button type="submit" style="color:black;">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
 
-                    @*<form action="/Home/AddPlaylistAdmin" method="post">
-                            <input type="text" id="domain" name="Id" value="@item.title" style="display:none;" />
-                            <input type="text" id="domainCheckId" name="CheckId" value="@item.id" style="display:none;" />
-                            <select name="theloai" class="form-control">
-                                <option value="hoa">Nhạc Hoa</option>
-                                <option value="viet">Nhạc Việt</option>
-                                <option value="khac">Nhạc Khác</option>
-                            </select>
-                            <button type="submit" style="color:black;">Add Your Playlist Admin In Index</button>
-                        </form>*@
-                    <form action="/Home/DetelePlaylistAdmin" method="post">
-                        <input type="text" id="domain" name="Id" value="@video.id" style="display:none;" />
+</table>
+<h2>VIỆT NAM</h2>
+<table class="table">
+    <tr>
+        <th>
+            id Tác Giả
+        </th>
+        <th>
+            Tên Tác Giả
+        </th>
+        <th>
+            Mô Tả
+        </th>
+        <th>
+            Hình Nhân Vật
+        </th>
+        <th>
+            Nguồn Gốc
+        </th>
 
-                        <button type="submit" style="color:black;">Detele From Playlist</button>
-                    </form>
+        <th></th>
+    </tr>
 
-                    <div class="modal js-modal" onclick="closeAllList(event)" id="@video.id">
-                        <div class="modal-container js-modal-container">
-                            <div class="modal-close js-modal-close" onclick="closeList(event)" data-id="@video.id">
-                                <i class="fa fa-times"></i>
-                            </div>
+    @foreach (Person item in Model.personVN)
+    {
+        <tr>
+            <td>
+                @item.idPerson
+            </td>
+            <td>
+                @item.namePerson
+            </td>
+            <td>
+                @item.Mota
+            </td>
+            <td>
+                <img src="@item.hinhPerson" style="width:200px;height:200px;">
+            </td>
+            <td>
+                @item.Theloai.nameTheloai
+            </td>
+            <td>
+                <form action="/Home/EditTacGia" method="post">
+                    <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+                    <button type="submit" style="color:black;">EditInfo</button>
+                </form> |
+                <form action="/Home/DetailsTacGia" method="post">
+                    <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+                    <button type="submit" style="color:black;">ViewInfo</button>
+                </form> |
+                <form action="/Home/DeleteTacGia" method="post">
+                    <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+                    <button type="submit" style="color:black;">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
 
-                            <header class="modal-header">
-                                <div class="Lyrics-form ">
-                                    <i class="modal-heading-icon fa fa-info"></i>
-                                    <h1 class="Lyrics-title">@video.title</h1>
-                                </div>
-
-                            </header>
-
-                            <div class="modal-body">
-                                <div class="Lyrics">
-                                    <p class="Lyrics-info">
-
-                                        <iframe width="560" height="315" src="https://www.youtube.com/embed/@video.HinhNguonVideo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                        <div style="color:black;">
-                                            @video.link
-                                        </div>
-                                    </p>
-
-                                </div>
-                            </div>
-
-                            <footer class="modal-footer">
-                                <p class="modal-help text-black">Need <a href="">help?</a></p>
-                            </footer>
-                        </div>
-                    </div>
-                }
-
-
-            </div>
-        </div>
-    </section>
-</div>
-
-
-
+</table>
 
 <div class="modal js-modal" onclick="closeAllList(event)" id="Show">
     <div class="modal-container js-modal-container">
@@ -267,7 +290,7 @@
                     @*Nghe Si*@
                     <div class="Artist">
                         <section class="Artist-Noidung">
-                            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none;color:black">Artists Trung Hoa</a></h2></header>
+                            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none">Artists</a></h2></header>
                             <div class="Artist-content">
                                 @foreach (Person person in Model.personTQ)
                                 {
@@ -320,7 +343,7 @@
 
                     <div class="Artist">
                         <section class="Artist-Noidung">
-                            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none;color:black;">Artists Việt Nam</a></h2></header>
+                            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none">Artists</a></h2></header>
                             <div class="Artist-content">
                                 @foreach (Person person in Model.personVN)
                                 {
@@ -379,8 +402,6 @@
     </div>
 </div>
 
-
-
 <script>
     function openList(e) {
         var id = e.currentTarget.getAttribute('data-id')
@@ -413,4 +434,3 @@
 
 
 </script>
-

@@ -1,0 +1,65 @@
+﻿@model IEnumerable<AMNHAC.Models.Person>
+
+@{
+    ViewBag.Title = "DetailsTacGia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Information</h2>
+@foreach (var item in Model)
+{
+    <div>
+        <hr />
+        <dl class="dl-horizontal">
+
+            <dt>
+                id Tác Giả
+            </dt>
+
+            <dd>
+                @item.idPerson
+            </dd>
+
+            <dt>
+                Tên Tác Giả
+            </dt>
+
+            <dd>
+                @item.namePerson
+            </dd>
+
+            <dt>
+                Mô Tả
+            </dt>
+
+            <dd>
+                @item.Mota
+            </dd>
+
+            <dt>
+                Hình Nhân Vật
+            </dt>
+
+            <dd>
+                <img src="@item.hinhPerson" style="width:200px;height:200px;">
+            </dd>
+
+            <dt>
+                Nguồn Gốc
+            </dt>
+
+            <dd>
+                @item.Theloai.nameTheloai
+            </dd>
+
+        </dl>
+    </div>
+    <form action="/Home/EditTacGia" method="post">
+        <input type="text" id="domain" name="Id" value="@item.idPerson" style="display:none;" />
+        <button type="submit" style="color:black;">Edit</button>
+    </form>
+    <p>
+        
+        @Html.ActionLink("Back to List", "TacGia")
+    </p>
+}

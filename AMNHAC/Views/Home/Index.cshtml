@@ -141,7 +141,7 @@
                             </a>
                         </div>
 
-                        
+
                         <form action="/Home/AddPlaylist" method="post">
                             @using Microsoft.AspNet.Identity
                             @if (Request.IsAuthenticated)
@@ -272,12 +272,12 @@
     </script>
 
 
-    @*Nghe Si*@
+    @*Nghe Si TQ*@
     <div class="Artist">
         <section class="Artist-Noidung">
-            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none">Artists</a></h2></header>
+            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none">Artists Chinese</a></h2></header>
             <div class="Artist-content">
-                @foreach (Person person in Model.person)
+                @foreach (Person person in Model.personTQ)
                 {
                     <a class="NgheSi">
                         <div class="nghesi" style="--nghesi-0:auto">
@@ -326,6 +326,59 @@
         </section>
     </div>
 
+    @*Nghe Si VN*@
+    <div class="Artist">
+        <section class="Artist-Noidung">
+            <header class="Artist-Tieude"><h2 class="h3w46bu"><a class="l1amswbe" style="--l1amswbe-0:inherit;--l1amswbe-1:none">Artists Việt Nam</a></h2></header>
+            <div class="Artist-content">
+                @foreach (Person person in Model.personVN)
+                {
+                    <a class="NgheSi">
+                        <div class="nghesi" style="--nghesi-0:auto">
+                            <div class="hinhanh" onclick="openList(event)" data-id="@person.idPerson" style="--hinhanh-0: 100%; --p18r570z-1: 100% ">
+                                <img src="@person.hinhPerson" alt="Mỹ Tâm" title="@person.namePerson" class="i1by9jdf iwzmvkf" style="--iwzmvkf-0:transparent;--iwzmvkf-1:50%;--i1by9jdf-0:#FFFFFF">
+                            </div>
+                            <div class="naphpbz" style="--naphpbz-0:16px;--naphpbz-1:15px">@person.namePerson</div>
+                        </div>
+                    </a>
+
+
+                    <div class="modal js-modal" onclick="closeAllList(event)" id="@person.idPerson">
+                        <div class="modal-container js-modal-container">
+                            <div class="modal-close js-modal-close" onclick="closeList(event)" data-id="@person.idPerson">
+                                <i class="fa fa-times"></i>
+                            </div>
+
+                            <header class="modal-header">
+                                <div class="Lyrics-form ">
+                                    <i class="modal-heading-icon fa fa-info"></i>
+                                    <h1 class="Lyrics-title">@person.namePerson</h1>
+                                </div>
+
+                            </header>
+
+                            <div class="modal-body">
+                                <div class="Lyrics">
+                                    <p class="Lyrics-info">
+
+                                        @person.Mota
+
+                                    </p>
+
+                                </div>
+                            </div>
+
+                            <footer class="modal-footer">
+                                <p class="modal-help text-black">Need <a href="">help?</a></p>
+                            </footer>
+                        </div>
+                    </div>
+                }
+
+
+            </div>
+        </section>
+    </div>
 
     @*TicKet*@
     <div id="tour" class="tour-section">
